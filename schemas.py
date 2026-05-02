@@ -42,3 +42,21 @@ class UserResponse(BaseModel):
     # Without this, FastAPI cannot turn a SQLAlchemy `User` into JSON.
     # (In Pydantic v1 this was: class Config: orm_mode = True)
     model_config = ConfigDict(from_attributes=True)
+class UserRegistration(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    email: EmailStr
+    age: int = Field(..., gt=1, lt=100)
+    password: str = Field(..., min_length=3, max_length=200)
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=3, max_length=200)
+
+
+# Standard OAuth2 token response shape.
+# NEVER return the password (even hashed) to clients.
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+

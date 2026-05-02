@@ -3,6 +3,7 @@ from fastapi import FastAPI
 import models
 from database import engine
 from routes.user_routes import router as user_router
+from routes.auth_routes import router as auth_router
 
 
 # Create the FastAPI application instance.
@@ -16,6 +17,7 @@ models.Base.metadata.create_all(bind=engine)
 
 # Mount the /users routes onto the main app.
 app.include_router(user_router)
+app.include_router(auth_router)
 
 
 @app.get("/", tags=["Health"])

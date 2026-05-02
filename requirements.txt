@@ -2,5 +2,8 @@ fastapi
 uvicorn[standard]
 sqlalchemy
 pymysql
+cryptography
 python-dotenv
 pydantic[email]
+passlib[bcrypt]
+bcrypt<4.0

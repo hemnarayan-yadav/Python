@@ -16,7 +16,7 @@ class User(Base):
     # unique=True -> DB rejects duplicate emails (data integrity at DB level).
     # index=True  -> fast lookup by email.
     email = Column(String(150), unique=True, index=True, nullable=False)
-
+    password = Column(String(255))
     age = Column(Integer, nullable=False)
 
     # server_default=func.now() -> MySQL fills this automatically on INSERT.

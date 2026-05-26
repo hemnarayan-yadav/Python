@@ -7,3 +7,10 @@ python-dotenv
 pydantic[email]
 passlib[bcrypt]
 bcrypt<4.0
+python-jose[cryptography]
+openai
+google-generativeai
+groq
+jinja2
+python-multipart
+aiohttp

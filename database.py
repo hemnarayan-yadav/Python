@@ -1,12 +1,12 @@
 import os
+from pathlib import Path
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Load variables from a .env file into os.environ.
-# Keep secrets (DB password, etc.) out of source code.
-load_dotenv()
+# Load variables from a .env file next to this script.
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 # Read DB connection settings from environment.
 user = os.getenv("DB_USER")

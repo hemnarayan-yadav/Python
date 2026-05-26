@@ -58,5 +58,38 @@ class UserLogin(BaseModel):
 # NEVER return the password (even hashed) to clients.
 class TokenResponse(BaseModel):
     access_token: str
+
+
+# ---------- AI schemas ----------
+
+class ChatRequest(BaseModel):
+    message: str = Field(..., min_length=1, max_length=2000)
+
+
+class ChatResponse(BaseModel):
+    reply: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ContentGenerateRequest(BaseModel):
+    user_id: Optional[int] = None
+    content_type: str = Field(..., pattern="^(email|bio|report|social_post)$")
+    extra_instructions: Optional[str] = Field(None, max_length=500)
+
+
+class ContentGenerateResponse(BaseModel):
+    content_type: str
+    result: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class InsightRequest(BaseModel):
+    question: Optional[str] = Field(None, max_length=500)
+
+
+class InsightResponse(BaseModel):
+    insight: str
+    user_count: int
+    avg_age: Optional[float] = None
     token_type: str = "bearer"
 

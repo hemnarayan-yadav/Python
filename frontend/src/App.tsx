@@ -8,6 +8,9 @@ import RecordsPage from './pages/RecordsPage'
 import UsersPage from './pages/UsersPage'
 import ChatPage from './pages/ChatPage'
 import ContentPage from './pages/ContentPage'
+import DataSourcesPage from './pages/DataSourcesPage'
+import AnalyticsPage from './pages/AnalyticsPage'
+import EmailPage from './pages/EmailPage'
 import { ProtectedRoute, OnboardingRoute } from './routes/ProtectedRoute'
 import { useAuth } from './context/AuthContext'
 
@@ -35,6 +38,9 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/records" element={<RecordsPage />} />
+          <Route path="/sources" element={<DataSourcesPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/email" element={<EmailPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/content" element={<ContentPage />} />
         </Route>

@@ -10,6 +10,7 @@ export default defineConfig({
       '/users': 'http://127.0.0.1:8000',
       '/ai': 'http://127.0.0.1:8000',
       '/organization': 'http://127.0.0.1:8000',
+      '/data': 'http://127.0.0.1:8000',
       '/health': 'http://127.0.0.1:8000',
     },
   },

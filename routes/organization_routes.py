@@ -35,5 +35,6 @@ def setup_organization(
 @router.get("/records", response_model=DynamicRecordsResponse)
 async def get_organization_records(
     current_user: models.User = Depends(require_onboarding_complete),
+    db: Session = Depends(get_db),
 ):
-    return await organization_controller.get_records(current_user)
+    return await organization_controller.get_records(current_user, db)

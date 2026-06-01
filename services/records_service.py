@@ -7,9 +7,12 @@ import httpx
 _PREFERRED_COLUMNS = (
     "id",
     "name",
+    "first_name",
+    "last_name",
     "email",
     "phone",
     "age",
+    "gender",
     "city",
     "status",
     "created_at",
@@ -20,16 +23,67 @@ ColumnType = Literal["string", "number", "boolean", "json", "null"]
 
 
 def _normalize_rows(payload: Any) -> List[Dict[str, Any]]:
+    """Extract list-of-dicts from various API response shapes."""
     if isinstance(payload, list):
         return [r for r in payload if isinstance(r, dict)]
     if isinstance(payload, dict):
-        for key in ("data", "users", "records", "results", "items", "payload"):
+        # First try common wrapper keys (including nested paths like data.prospects)
+        for key in ("data", "users", "records", "results", "items", "payload",
+                     "prospects", "members", "contacts", "entries", "list"):
             inner = payload.get(key)
             if isinstance(inner, list):
                 return [r for r in inner if isinstance(r, dict)]
+            # Handle nested data: {"data": {"prospects": [...]}}
+            if isinstance(inner, dict):
+                for subkey in ("prospects", "users", "records", "results",
+                               "items", "list", "entries", "members", "contacts"):
+                    sub_inner = inner.get(subkey)
+                    if isinstance(sub_inner, list):
+                        return [r for r in sub_inner if isinstance(r, dict)]
         if all(isinstance(v, dict) for v in payload.values()):
             return list(payload.values())
     return []
+
+
+def _flatten_row(row: Dict[str, Any], prefix: str = "", sep: str = "_") -> Dict[str, Any]:
+    """
+    Recursively flatten nested dicts into top-level columns.
+
+    Example:
+        {"id": 1, "user_detail": {"email": "a@b.com", "first_name": "X"}}
+      →
+        {"id": 1, "email": "a@b.com", "first_name": "X"}
+
+    If a flattened key would collide with an existing key, it uses the prefixed
+    version (e.g. "user_detail_email").
+    """
+    flat: Dict[str, Any] = {}
+    nested_entries: List[tuple] = []  # (full_key, child_key, value)
+
+    for key, value in row.items():
+        full_key = f"{prefix}{sep}{key}" if prefix else key
+
+        if isinstance(value, dict) and not isinstance(value, type(None)):
+            # Recurse into nested dict
+            child = _flatten_row(value, prefix=full_key, sep=sep)
+            for ck, cv in child.items():
+                # Use the original child key (without parent prefix) if possible
+                # e.g. "user_detail_email" → try "email" first
+                child_key = ck[len(full_key) + 1:] if ck.startswith(full_key + sep) else ck
+                nested_entries.append((ck, child_key, cv))
+        elif isinstance(value, list):
+            flat[full_key if prefix else key] = _flatten_value(value)
+        else:
+            flat[full_key if prefix else key] = _flatten_value(value)
+
+    # Merge nested entries — prefer short key unless it collides
+    for full_key, child_key, value in nested_entries:
+        if child_key and child_key not in flat:
+            flat[child_key] = value
+        else:
+            flat[full_key] = value
+
+    return flat
 
 
 def _flatten_value(value: Any) -> Any:
@@ -85,7 +139,7 @@ def build_dynamic_table(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     normalized_rows: List[Dict[str, Any]] = []
 
     for row in rows:
-        flat = {k: _flatten_value(v) for k, v in row.items()}
+        flat = _flatten_row(row)
         normalized_rows.append(flat)
         column_set.update(flat.keys())
 

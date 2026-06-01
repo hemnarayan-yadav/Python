@@ -1,6 +1,7 @@
 import models
 import schemas
 from services.records_service import fetch_organization_records
+from services.data_pipeline import get_legacy_org_records
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -55,13 +56,14 @@ def create_or_update_organization(
 
 async def get_records(
     current_user: models.User,
+    db: Session,
 ) -> schemas.DynamicRecordsResponse:
     org = current_user.organization
     if not org:
         raise HTTPException(status_code=404, detail="Organization not found")
 
     try:
-        result = await fetch_organization_records(org.api_url, org.api_key)
+        result = await get_legacy_org_records(org, db)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -70,9 +72,9 @@ async def get_records(
 
     return schemas.DynamicRecordsResponse(
         columns=result["columns"],
-        schema=result["schema"],
+        schema=result.get("schema_info", result.get("schema", [])),
         rows=result["rows"],
         total=result["total"],
-        source=result["source"],
+        source=result.get("source", result.get("source_name", "api")),
         fetched_at=result["fetched_at"],
     )

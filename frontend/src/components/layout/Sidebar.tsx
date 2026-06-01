@@ -3,6 +3,9 @@ import { NavLink } from 'react-router-dom'
 const tabs = [
   { to: '/dashboard', label: 'Dashboard', icon: '▦' },
   { to: '/users', label: 'Organization Users', icon: '☰' },
+  { to: '/sources', label: 'Data Sources', icon: '⛁' },
+  { to: '/analytics', label: 'Analytics', icon: '📊' },
+  { to: '/email', label: 'Email Center', icon: '✉' },
   { to: '/chat', label: 'AI Chat', icon: '💬' },
   { to: '/content', label: 'Content AI', icon: '✎' },
 ]

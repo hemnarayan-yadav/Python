@@ -12,6 +12,7 @@ from routes.user_routes import router as user_router
 from routes.auth_routes import router as auth_router
 from routes.ai_routes import router as ai_router
 from routes.organization_routes import router as organization_router
+from routes.data_routes import router as data_router
 
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
@@ -66,6 +67,7 @@ app.include_router(user_router)
 app.include_router(auth_router)
 app.include_router(ai_router)
 app.include_router(organization_router)
+app.include_router(data_router)
 
 
 @app.get("/health", tags=["Health"])

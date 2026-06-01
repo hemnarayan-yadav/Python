@@ -14,3 +14,4 @@ groq
 jinja2
 python-multipart
 aiohttp
+httpx

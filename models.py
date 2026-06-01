@@ -1,32 +1,36 @@
-from sqlalchemy import Column, Integer, String, TIMESTAMP, Text, ForeignKey, func
+from sqlalchemy import Column, Integer, String, TIMESTAMP, Text, ForeignKey, Boolean, func
 from sqlalchemy.orm import relationship
 from database import Base
 
 
-# A "model" = a Python class that maps to a DB table (ORM = Object Relational Mapper).
-# Each class attribute = one column in the table.
 class User(Base):
-    __tablename__ = "users"  # actual table name in MySQL
+    __tablename__ = "users"
 
-    # primary_key=True -> unique row id; index=True speeds up lookups by id.
     id = Column(Integer, primary_key=True, index=True)
-
-    # nullable=False -> column is required (NOT NULL in SQL).
     name = Column(String(100), nullable=False)
-
-    # unique=True -> DB rejects duplicate emails (data integrity at DB level).
-    # index=True  -> fast lookup by email.
     email = Column(String(150), unique=True, index=True, nullable=False)
     password = Column(String(255))
     age = Column(Integer, nullable=False)
-
-    # server_default=func.now() -> MySQL fills this automatically on INSERT.
-    # Better than setting it in Python: the DB clock is the single source of truth.
+    onboarding_completed = Column(Boolean, default=False, nullable=False, server_default="0")
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
 
-    # Relationships
+    organization = relationship("Organization", back_populates="owner", uselist=False)
     chat_messages = relationship("ChatMessage", back_populates="user")
     ai_contents = relationship("AIContent", back_populates="user")
+
+
+class Organization(Base):
+    __tablename__ = "organizations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False, index=True)
+    name = Column(String(200), nullable=False)
+    industry = Column(String(100), nullable=True)
+    api_url = Column(String(500), nullable=True)
+    api_key = Column(String(500), nullable=True)
+    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+
+    owner = relationship("User", back_populates="organization")
 
 
 class ChatMessage(Base):
@@ -34,7 +38,7 @@ class ChatMessage(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    role = Column(String(20), nullable=False)  # "user" or "assistant"
+    role = Column(String(20), nullable=False)
     content = Column(Text, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
 
@@ -46,10 +50,9 @@ class AIContent(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    content_type = Column(String(50), nullable=False)  # "email", "bio", "report"
+    content_type = Column(String(50), nullable=False)
     prompt = Column(Text, nullable=False)
     result = Column(Text, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
 
     user = relationship("User", back_populates="ai_contents")
-

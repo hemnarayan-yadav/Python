@@ -5,17 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 import models
 import schemas
-from database import SessionLocal
-
-
-# ---- Dependency: provides a DB session per request and always closes it ----
-# Defining it here (instead of main.py) keeps controllers self-contained.
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db          # FastAPI injects this into route functions
-    finally:
-        db.close()        # always close, even if an exception is raised
+from database import get_db
 
 
 # ===================== CRUD =====================

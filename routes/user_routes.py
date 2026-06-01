@@ -3,16 +3,14 @@ from fastapi import APIRouter, Depends, status
 
 from controllers import user_controllers
 from schemas import UserResponse
-from utils.dependencies import get_current_user
+from utils.dependencies import require_onboarding_complete
 
 
-# APIRouter = a mini FastAPI app you can mount under a prefix.
-# prefix="/users" -> every route below is automatically /users/...
-# tags=["Users"]  -> groups them in the auto-generated /docs UI.
-# dependencies=[Depends(get_current_user)] applies JWT auth to EVERY route
-# in this router -- acts like a middleware. Requests without a valid Bearer
-# token get a 401 before the controller ever runs.
-router = APIRouter(prefix="/users", tags=["Users"], dependencies=[Depends(get_current_user)])
+router = APIRouter(
+    prefix="/users",
+    tags=["Users"],
+    dependencies=[Depends(require_onboarding_complete)],
+)
 
 
 # We register the controller functions DIRECTLY as the route handlers.

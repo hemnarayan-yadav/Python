@@ -1,9 +1,11 @@
-from typing import List
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 from controllers import ai_controller
 from schemas import ChatRequest, ChatResponse, ContentGenerateRequest, ContentGenerateResponse, InsightRequest, InsightResponse
+from utils.dependencies import require_onboarding_complete
 
 router = APIRouter(prefix="/ai", tags=["AI"])
+
+_onboarded = [Depends(require_onboarding_complete)]
 
 router.add_api_route(
     "/chat",
@@ -11,6 +13,7 @@ router.add_api_route(
     methods=["POST"],
     response_model=ChatResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=_onboarded,
 )
 
 router.add_api_route(
@@ -19,6 +22,7 @@ router.add_api_route(
     methods=["POST"],
     response_model=ContentGenerateResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=_onboarded,
 )
 
 router.add_api_route(
@@ -27,6 +31,7 @@ router.add_api_route(
     methods=["POST"],
     response_model=InsightResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=_onboarded,
 )
 
 router.add_api_route(
@@ -34,6 +39,7 @@ router.add_api_route(
     ai_controller.get_chat_history,
     methods=["GET"],
     status_code=status.HTTP_200_OK,
+    dependencies=_onboarded,
 )
 
 router.add_api_route(
